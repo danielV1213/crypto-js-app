@@ -6,6 +6,7 @@ import Home from "./routes/Home";
 import SignIn from './routes/SignIn'
 import SignUp from './routes/SignUp'
 import Account from './routes/Account'
+import CoinPage from './routes/CoinPage'
 import axios from "axios";
 
 function App() {
@@ -30,6 +31,9 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/coin/:coinId" element={<CoinPage />}>
+          <Route path=":coinId" />
+        </Route>
       </Routes>
     </ThemeProvider>
   );
