@@ -1,23 +1,56 @@
-import React from "react";
-import { AiOutlineStar } from "react-icons/ai";
+import React, { useState } from "react";
+import { AiOutlineStar, AiFillStar } from "react-icons/ai";
+import { Link } from "react-router-dom";
 import { Sparklines, SparklinesLine } from "react-sparklines";
+import { UserAuth } from "../context/AuthContext";
+import { db } from "../firebase";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import { async } from "@firebase/util";
 
 const CoinItem = ({ coin }) => {
+  const [savedCoin, setSavedCoin] = useState(false);
+  const { user } = UserAuth();
+
+  const coinPath = doc(db, "users", `${user?.email}`);
+  const saveCoin = async () => {
+    // try {
+    if (user?.email) {
+      setSavedCoin(true);
+      await updateDoc(coinPath, {
+        savedCoinsList: arrayUnion({
+          id: coin.id,
+          name: coin.name,
+          image: coin.image,
+          rank: coin.market_cap_rank,
+          symbol: coin.symbol,
+        }),
+      });
+    } else {
+      alert("Please sign in to save a coin to your Saved Coins List");
+    }
+    // } catch (e) {
+    //   setSavedCoin(false);
+    //   alert("Your coin could not be saved. Try again later");
+    // }
+  };
+
   return (
     <tr className="h-[8px] border-b overflow-hidden">
-      <td>
-        <AiOutlineStar />
+      <td onClick={saveCoin}>
+        {savedCoin ? <AiFillStar /> : <AiOutlineStar />}
       </td>
       <td>{coin.market_cap_rank}</td>
       <td>
-        <div className="flex items-center">
-          <img
-            className="w-6 mr-2 rounded-full"
-            src={coin.image}
-            alt={coin.id}
-          />
-          <p className="hidden sm:table-cell">{coin.name}</p>
-        </div>
+        <Link to={`/coin/${coin.id}`}>
+          <div className="flex items-center">
+            <img
+              className="w-6 mr-2 rounded-full"
+              src={coin.image}
+              alt={coin.id}
+            />
+            <p className="hidden sm:table-cell">{coin.name}</p>
+          </div>
+        </Link>
       </td>
       <td>{coin.symbol.toUpperCase()}</td>
       <td>${coin.current_price.toLocaleString()}</td>
